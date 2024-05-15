@@ -33,6 +33,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/vue3-toastify@0.1.12/dist/index.css" rel="stylesheet" />
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/brands.min.css"
     integrity="sha512-L+sMmtHht2t5phORf0xXFdTC0rSlML1XcraLTrABli/0MMMylsJi3XA23ReVQkZ7jLkOEIMicWGItyK4CAt2Xw=="
@@ -295,12 +296,12 @@
                             </div>
                           </div>
                         </div>
-
                         <div class="my-2 mx-4">
-                          <button type="button" class="btn btn-outline-secondary" @click="commentShow = !commentShow"
-                            data-mdb-button-init="true" data-mdb-ripple-init="true"> <i
-                              class="fas fa-reply me-2"></i>Replys</button>
+                          <button type="button" class="btn btn-outline-secondary" @click="commentShow = !commentShow;"
+                            data-mdb-button-init="true" data-mdb-ripple-init="true">
+                            <i class="fas fa-reply me-2"></i>Replys</button>
                         </div>
+                        <!-- <button @click="notify">show toast</button> -->
 
                         <!-- Comment section -->
 
@@ -311,58 +312,62 @@
                                 <div class="card">
                                   <div v-for="comment in state.comments" :key="comment.id"
                                     :class="{'d-none ': !comment.attributes.comment , 'd-block': comment.attributes.comment }">
-                                    <hr v-if="comment.attributes.comment" class="my-0 mx-auto"
-                                      :class="{'d-none': !comment.attributes.comment}" />
-                                    <div class="card-body py-0">
-                                      <div v-if="comment.attributes.taskID == task.id ">
+                                    <!-- <hr v-show="hrShow" class="my-0 mx-auto"
+                                      :class="{'d-none': !comment.attributes.comment}" /> -->
+                                    <div class="card-body my-1 mx-3"
+                                      style="border-radius: 20px; border: #e9ecee 1px solid; background-color: #F1F5F9;"
+                                      v-show="comment.attributes.taskID == task.id ">
+                                      <div>
                                         <div class="d-flex flex-start align-items-center">
                                           <!-- <img class="rounded-circle shadow-1-strong me-3"
                                         src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp" alt="avatar"
                                         width="60" height="60" /> -->
-                                          <div class="d-flex flex-column w-100 ps-2 pt-1 ">
+                                          <div class="d-flex flex-row w-100 ps-2 pt-1 fw-semibold">
                                             <h6 class="fw-bold text-primary mb-1">{{ comment.attributes.user }}</h6>
-                                            <p class="text-muted small mb-0">
-                                              {{ formatDate(comment.attributes.createdAt) }}
+                                            <p class="text-muted small mb-0 fw-normal mx-2">
+                                              {{ formatDateTime(comment.attributes.createdAt) }}
                                             </p>
                                           </div>
                                         </div>
 
-                                        <p class="mt-3 mb-4 pb-2 mx-2">
+                                        <p class="my-1 mx-2">
                                           {{ comment.attributes.comment }}
                                         </p>
 
                                         <!-- <div class="small d-flex justify-content-start">
-                                      <a href="#!" class="d-flex align-items-center me-3">
+                                        <a href="#!" class="d-flex align-items-center me-3">
                                         <i class="far fa-thumbs-up me-2"></i>
                                         <p class="mb-0">Like</p>
-                                      </a>
-                                      <a href="#!" class="d-flex align-items-center me-3">
+                                        </a>
+                                        <a href="#!" class="d-flex align-items-center me-3">
                                         <i class="far fa-comment-dots me-2"></i>
                                         <p class="mb-0">Comment</p>
-                                      </a>
-                                      <a href="#!" class="d-flex align-items-center me-3">
+                                        </a>
+                                        < a href="#!" class="d-flex align-items-center me-3">
                                         <i class="fas fa-share me-2"></i>
                                         <p class="mb-0">Share</p>
-                                      </a>-->
+                                        </a>-->
                                       </div>
                                     </div>
                                   </div>
                                 </div>
-                                <div class="card-footer py-3 border-0" style="background-color: #f8f9fa;">
-                                  <form @submit.prevent="postComment(task.id)">
+                                <div class="card-footer py-3 border-0" style="background-color: #e3e7eb00;">
+                                  <form @submit.prevent="postComment(task.id); commentValue.comment = '';">
                                     <div class="d-flex flex-start w-100">
                                       <!-- <img class="rounded-circle shadow-1-strong me-3"
                                         src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp" alt="avatar"
                                         width="40" height="40" /> -->
-                                      <div data-mdb-input-init class="form-outline w-100">
-                                        <textarea class="form-control" id="textAreaExample" rows="1"
-                                          v-model="formValue.comment" placeholder="Leave a comment"
+                                      <div data-mdb-input-init class="form-outline mx-3" style="width: 97%;">
+                                        <textarea class="form-control " id="textAreaExample" rows="1"
+                                          v-model="commentValue.comment" placeholder="Leave a comment"
                                           style="background: #fff;"></textarea>
                                       </div>
                                     </div>
-                                    <div class="float-end mt-2 pt-1">
-                                      <button type="submit" data-mdb-button-init data-mdb-ripple-init
-                                        class="btn btn-primary btn-sm"> Replay
+                                    <div class="float-end mt-2 me-3 pt-1">
+                                      <button type="submit"
+                                        :class="{'btn-primary':commentvalid,'btn-secondary':!commentvalid}"
+                                        class="btn btn-primary btn-sm" :disabled="!commentvalid">
+                                        Replay
                                       </button>
                                       <!-- <button type="button" data-mdb-button-init data-mdb-ripple-init
                                         class="btn btn-outline-primary btn-sm">Cancel</button>
@@ -420,12 +425,13 @@
           <div class="modal-body">
             <form @submit.prevent="postData">
               <div class="mb-3">
-                <label class="form-label" for="taskName">Name</label>
+                <label class="form-label" for="taskName">Task</label>
                 <input v-model="formValue.name" type="text" id="taskName" class="form-control" required>
               </div>
               <div class="mb-3">
                 <label class="form-label" for="taskDescription">Description</label>
-                <input v-model="formValue.description" type="text" id="taskDescription" class="form-control" required>
+                <textarea v-model="formValue.description" type="text" id="taskDescription" class="form-control"
+                  required> </textarea>
               </div>
               <div class="mb-3">
                 <label class="form-label" for="taskProject">Project List</label>

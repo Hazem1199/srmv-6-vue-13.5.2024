@@ -1,6 +1,8 @@
 // Correct import of Composition API functions
 const { createApp, ref, reactive, onMounted, computed } = Vue;
 
+import { toast } from 'https://cdn.jsdelivr.net/npm/vue3-toastify@0.1.12/+esm';
+
 import Sidbar from "../componant/sidbar.js";
 
 
@@ -26,7 +28,7 @@ const App = {
       deadline: "",
       emp: "",
       supervisor: "",
-      comment: "",
+      // comment: "",
     });
     const formvalid = computed(() => {
       if (
@@ -34,11 +36,23 @@ const App = {
         formValue.description &&
         formValue.project &&
         formValue.emp &&
-        formValue.supervisor &&
-        formValue.comment
+        formValue.supervisor
+        // formValue.comment
         // formValue.start &&
         // formValue.deadline
       ) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+
+    const commentValue = reactive({
+      comment: "",
+    });
+
+    const commentvalid = computed(() => {
+      if (commentValue.comment) {
         return true;
       } else {
         return false;
@@ -157,6 +171,21 @@ const App = {
 
 
 
+    // const filterComment = computed(() => {
+    //   if (selectedTask.value) {
+    //     return state.comments.filter(
+    //       (comment) => comment.attributes.taskID === selectedTask.value.id
+    //     );
+    //   }
+    //   return [];
+    // });
+
+
+
+    // console.log(filterComment.value);
+
+
+
 
     const spinnerShow = ref(false);
     const advancedSettingShow = ref(false);
@@ -239,6 +268,18 @@ const App = {
       const month = date.toLocaleString("default", { month: "long" });
       const year = date.getFullYear();
       return `${day} ${month}, ${year}`;
+    };
+
+
+    const formatDateTime = (dateString) => {
+      const date = new Date(dateString);
+      const day = date.getDate();
+      const month = date.toLocaleString("default", { month: "long" });
+      const year = date.getFullYear();
+      const hour = date.getHours() > 12 ? date.getHours() - 12 : date.getHours();
+      const min = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
+      const time = hour >= 12 ? " pm" : " pm";
+      return `${day} ${month}, ${year} at ${hour}:${min}${time}`;
     };
 
     const postData = async (data) => {
@@ -325,24 +366,25 @@ const App = {
         body: JSON.stringify({
           data: {
             taskID: id,
-            comment: formValue.comment,
+            comment: commentValue.comment,
             user: state.user,
           },
         }),
       })
         .then((result) => {
-          // Handle success
-          successMsgReply.value = true;
-          setTimeout(() => {
-            successMsgReply.value = false;
-          }, 3000);
+          // // Handle success
+          // successMsgReply.value = true;
+          // setTimeout(() => {
+          //   successMsgReply.value = false;
+          // }, 3000);
+          notify();
         })
         .catch((error) => {
-          // Handle error
-          errorMsgReply.value = true;
-          setTimeout(() => {
-            errorMsgReply.value = false;
-          }, 3000);
+          // // Handle error
+          // errorMsgReply.value = true;
+          // setTimeout(() => {
+          //   errorMsgReply.value = false;
+          // }, 3000);
         });
 
       await fetchComment();
@@ -592,6 +634,34 @@ const App = {
     //   taskDescriptionModal.show();
     // };
 
+    // test toast
+    const toastId = ref('');
+    const toastIds = ref([]);
+
+    const notify = () => {
+      const toastId = toast.success(
+        'Comment Added',
+        {
+          rtl: true,
+          limit: 2,
+          position: toast.POSITION.TOP_RIGHT,
+        },
+      );
+      this.toastIds.push(toastId);
+    };
+
+    const notifyError = () => {
+      const toastId = toast.error(
+        'Error, Please try again',
+        {
+          rtl: true,
+          limit: 2,
+          position: toast.POSITION.TOP_RIGHT,
+        },
+      );
+      this.toastIds.push(toastId);
+    };
+
 
 
 
@@ -637,6 +707,13 @@ const App = {
       fetchComment,
       successMsgReply,
       errorMsgReply,
+      toastId,
+      notify,
+      toastIds,
+      notifyError,
+      commentValue,
+      commentvalid,
+      formatDateTime,
     };
   },
   components: {
